@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC 
+		"-//mybatis.org//DTD Config 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+		
+<configuration>
+	<settings>
+		<setting name="cacheEnabled" value="false" />
+		<setting name="useGeneratedKeys" value="false" />
+		<setting name="mapUnderscoreToCamelCase" value="false" />
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="com.itbank.shallwego.MemberDTO" alias="mb" />
+		<typeAlias type="com.itbank.shallwego.AccommDTO" alias="accomm" />
+		<typeAlias type="com.itbank.shallwego.NoticeDTO" alias="nb" />
+		<typeAlias type="com.itbank.shallwego.BoardDTO" alias="bb" />
+		<typeAlias type="com.itbank.shallwego.ReplyDTO" alias="rb" />
+		<typeAlias type="com.itbank.shallwego.CouponDTO" alias="cb" />
+		<typeAlias type="com.itbank.shallwego.RoomDTO" alias="room"/>
+		<typeAlias type="com.itbank.shallwego.SalesDTO" alias="sales"/>
+		<typeAlias type="com.itbank.shallwego.CfDTO" alias="cf"/>
+		<typeAlias type="com.itbank.shallwego.ReviewDTO" alias="rv"/>
+		<typeAlias type="com.itbank.shallwego.EventDTO" alias="ed"/>
+		<typeAlias type="com.itbank.shallwego.PaymentDTO" alias="payment"/>
+	</typeAliases>
+	
+</configuration>

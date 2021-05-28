@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+      "-//mybatis.org//DTD Mapper 3.0//EN" 
+      "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+      
+<mapper namespace="com.itbank.shallwego.LoadDAO">
+   <select id="selectAccomm" parameterType="int" resultType="accomm">
+      select * from accomm
+         where accomm_idx = #{accomm_idx}
+   </select>
+   
+   <select id="selectIndexRoom" parameterType="int" resultType="accomm">
+       select AA.*, accomm.* from (
+          select      
+              rp1.accomm_idx,
+              rp2.room_type,
+              min(rp1.cost_price) as minprice1,
+              min(rp2.cost_price) as minprice2
+              
+                  from accomm, rooms_price rp1
+                      join rooms_price rp2 on 1=1 
+                          where 
+                          rp2.room_type != 2 and
+                          rp1.accomm_idx = rp2.accomm_idx
+                          group by rp1.accomm_idx, rp2.accomm_idx, rp2.room_type
+                              order by rp1.accomm_idx) AA
+                              
+          join accomm on AA.accomm_idx = accomm.accomm_idx order by AA.accomm_idx
+   </select>
+   
+   <!-- 최저값 불러오는 셀렉트문 -->
+   
+<!--    <select id="selectMinPrice" resultType="accomm"> -->
+<!--       select  -->
+<!--           rp1.accomm_idx, -->
+<!--           rp2.accomm_idx, -->
+<!--           min(rp1.cost_price), -->
+<!--           min(rp2.cost_price) -->
+<!--               from rooms_price rp1 -->
+<!--                   join rooms_price rp2 on rp2.room_type = 2 -->
+<!--                      where rp1.room_type = 1 and rp1.accomm_idx = rp2.accomm_idx -->
+<!--                          group by rp1.accomm_idx, rp2.accomm_idx -->
+<!--    </select> -->
+   
+   <select id="selectRoom" parameterType="int" resultType="room">
+      select a.*, b.cost_price
+          from room a, rooms_price b
+          where a.accomm_idx = #{accomm_idx}
+          and a.room_idx = b.room_idx
+          ORDER BY room_name asc
+   </select>
+   
+   <select id="selectTier" parameterType="int" resultType="int">
+      select tier_number from tier
+         where accomm_idx = #{accomm_idx}
+   </select>
+   
+   <select id="selectCf" parameterType="int" resultType="cf">
+      select * from convenience_facilties
+         where cf_idx = #{cf_idx}
+   </select>
+   
+<!--    <select id="selectCfList" parameterType="int" resultType="cf">
+   <![CDATA[
+      select distinct
+    convenience_facilties.*, 
+    B.abcd
+        from      
+    convenience_facilties
+    join
+    (SELECT distinct regexp_substr(A.cf_idx, '[^,]+', 1, LEVEL) abcd
+        FROM (select * from accomm ac_idx where accomm_idx=#{accomm_idx}) A
+
+        CONNECT BY LEVEL <= length(regexp_replace(A.cf_idx, '[^,]+',''))+1) B on 1=1
+
+    where
+        abcd = cf_idx
+   ]]>
+   </select> -->
+   
+   <select id="selectOneRoom" parameterType="int" resultType="room">
+      select a.*, b.cost_price from room a, rooms_price b 
+         where a.room_idx = b.room_idx
+         and a.room_idx = #{room_idx}
+   </select>
+   
+   <!-- 검색어 중에서 지역 찾기 -->
+   <select id="selectRegion" resultType="string">
+      select region_name 
+         from region
+            where
+            <foreach collection="array" item="region_name" open="(" close=")" separator="or">
+               region_name like '%' || #{region_name} || '%'
+            </foreach>
+   </select>
+   
+   <!-- 지역에서 없을 시 지역서브에서 찾기 -->
+   <select id="selectRegion_sub" resultType="string">
+      select rs_name 
+         from region_sub
+            where
+            <foreach collection="array" item="rs_name" open="(" close=")" separator="or">
+               rs_name like '%' || #{rs_name} || '%'
+            </foreach>
+   </select>
+   
+   <!-- 검색어 중에서 숙소타입 찾기 -->
+   <select id="selectAccomm_type" resultType="string">
+      select accomm_type
+         from accomm_type
+            where 
+            <foreach collection="array" item="accomm_type" open="(" close=")" separator="or">
+               accomm_type = #{accomm_type}
+            </foreach>
+   </select>
+   
+   <!-- 숙소타입을 인덱스값으로 받아오기 -->
+   <select id="selectAccomm_type_idx" resultType="int">
+      select accomm_type_idx
+         from accomm_type
+            where
+               accomm_type = #{accomm_type_value}
+   </select>
+   
+   <!-- 검색리스트 받아오기 -->
+    <select id="selectSearchList" parameterType="hashmap" resultType="accomm">
+       select AA.*, accomm.* from (
+          select      
+              rp1.accomm_idx,
+              rp2.room_type,
+              min(rp1.cost_price) as minprice1,
+              min(rp2.cost_price) as minprice2
+              
+                  from accomm, rooms_price rp1
+                      join rooms_price rp2 on 1=1 
+                          where 
+                          rp2.room_type != 2 and
+                          rp1.accomm_idx = rp2.accomm_idx
+                          group by rp1.accomm_idx, rp2.accomm_idx, rp2.room_type
+                              order by rp1.accomm_idx) AA
+          join accomm 
+             on AA.accomm_idx = accomm.accomm_idx
+             <if test="region != null">
+         and accomm.accomm_address like '%' || #{region} || '%'
+         </if>   
+         <if test="accomm_type != 0 and accomm_type != null">
+         and accomm.accomm_type = #{accomm_type}
+         </if>
+          <if test="accomm_name != null">
+         and accomm.accomm_name like '%' || #{accomm_name} || '%'
+         </if>
+             order by AA.accomm_idx
+   </select>
+   
+   <!-- 해당 숙소의 리뷰 받아오기 -->
+   <select id="selectReviewList" parameterType="int" resultType="rv">
+      select *
+         from review
+            where accomm_idx = #{accomm_idx}
+               order by review_idx desc;
+   </select>
+   
+</mapper>
