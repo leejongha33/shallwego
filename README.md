@@ -1,3 +1,3 @@
 # shallwego
-## 국내 여행을 목적으로 한 숙소 
-shallwego PPT.key 
+### 국내 여행시 숙소예약 사이트
+PPT : shallwego PPT.key
